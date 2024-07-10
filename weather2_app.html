@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&family=Oxygen+Mono&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <title>Weather App</title>
+</head>
+
+<body>
+    <main>
+
+        <section class="container">
+            <div class="row">
+       
+                <input type="text" id="search-input" aria-describedby="searchCity" placeholder="search city...."
+                    class="search-form" autocomplete="off" />
+                
+                <button type="submit" class="but1">search</button>
+               
+                <h1 class="col d-flex justify-content-center align-items-center city-title" id="search-city">
+                    mumbai
+                </h1>
+
+
+
+            </div>
+            
+               
+
+            
+
+
+            <div id="droplink">
+                <h3> Recent searched citites : </h3>
+                <ul id="dropdown"></ul>
+            </div>
+
+
+        </section>
+        <section class="current-weather">
+            <div class="container">
+                <div class="row">
+                    <h1 class="col temp-title " id="current-temperature">4</h1>
+                    <div class="col">
+                     
+                        <br /><img id="weather_icon" src="https://img.icons8.com/color-glass/42/000000/cloud.png"
+                            alt="">
+                        <p id="weather">cloudy </p>
+                      
+                    </div>
+                    <div class="col">
+
+                        <div class="col todays-info">
+
+                           
+
+                            <h3 id="date"></h3>
+                            </div>
+
+                            <h2 id="current-day">Today</h2>
+                            <p id="weather-type"> cloudy</p>
+
+
+                        </div>
+                        <div class="col d-flex align-items-center side-info">
+                            <ul>
+                                <li>humidity: Air Holding  <span id="humidity"> </span>% Of Moisture</li>
+                                <li>wind:  <span id="wind"></span>(mph)</li>
+
+                            </ul>
+
+                        </div>
+
+                    </div>
+
+                </div>
+        </section>
+
+        <section class="container">
+            <div class="row week-forecast">
+                <div class="col">
+                    <h3 id="day1">friday</h3>
+                    <br /><img src="https://img.icons8.com/color-glass/42/000000/rain.png" alt="">
+                    <p class="weather"> Rain</p>
+                   
+                </div>
+                <div class="col">
+                    <h3 id="day2">friday</h3>
+                    <br /><img src="https://img.icons8.com/color-glass/42/000000/cloud.png" alt="">
+                    <p class="weather"> cloudy</p>
+                 
+                </div>
+                <div class="col">
+                    <h3 id="day3">friday</h3>
+                    <br /><img src="https://img.icons8.com/color-glass/42/000000/cloud.png" alt="">
+                    <p class="weather"> patly cloud</p>
+                
+                </div>
+                <div class="col">
+                    <h3 id="day4">friday</h3>
+                    <br /><img src="https://img.icons8.com/color-glass/42/000000/partly-cloudy-day.png" alt="">
+                    <p class="weather"> sunny</p>
+                 
+                </div>
+                <div class="col">
+                    <h3 id="day5">friday</h3>
+                    <br /><img src="https://img.icons8.com/color-glass/42/000000/sun.png" alt="">
+                    <p class="weather"> windy</p>
+                  
+                </div>
+        </section>
+        <footer>
+            <p>
+                designed by shubh lodhi
+                <a href="weather_app.html" target="_blank">shubh</a>
+                <span>✌🏼</span>
+
+
+            </p>
+        </footer>
+
+    </main>
+  
+
+
+    
+
+    <script>
+        // create the api url and api key: 
+        const apiurl = "https://api.openweathermap.org/data/2.5/weather?&units=metric&q="
+            
+        const apikey = "5278ce72312c187bc6240b5fc8476f72"
+        // using document object model to take the button and input control
+        const in1 = document.querySelector("#search-input")
+        const but1 = document.querySelector(".but1")
+        // calling event listener for updating weather data and dropdown menu
+        but1.addEventListener("click", () => { weather(in1.value) })
+        but1.addEventListener("click", () => { search_city() })
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // takes the recentcities from the local storage
+            const recentCities = get_recentcities();
+            // chekc if length is smaller then 0 then update the dropdown section
+            if (recentCities.length > 0) {
+                update_dropdown(recentCities);
+            }
+        });
+        // function provide the recentcities store in localstorage
+
+        function get_recentcities() {
+            return JSON.parse(localStorage.getItem("recentcity")) || []
+        }
+
+
+        // function to check the cities and update the city in dropdown menu 
+        // here set the recent city in localstorage
+        function search_city() {
+
+            const city = in1.value
+            if (city) {
+                weather(city)
+
+                let recentcity = get_recentcities()
+                if (!recentcity.includes(city)) {
+                    recentcity.push(city)
+                    if (recentcity.length > 5) {
+                        recentcity.shift() // keep only 5 first cities
+                    }
+                    localStorage.setItem("recentcity", JSON.stringify(recentcity))
+                }
+                update_dropdown(recentcity)
+
+
+            }
+        }
+        // update dropdown menu is used to update the dropdown list
+        // also add the eventlistener if some one click on the recent cities it shows the weather data of recent cities on UI
+        function update_dropdown(city) {
+            const dropdown = document.querySelector("#dropdown")
+            const droplink = document.querySelector("#droplink")
+            dropdown.innerHTML = ""
+            city.forEach(citi => {
+                const li = document.createElement("li")
+                li.innerHTML = `<a> ${citi}</a>`
+                li.classList.add("li")
+                li.addEventListener("click", () => weather(citi))
+                dropdown.appendChild(li)
+            })
+
+        }
+        // this function provide the informations of temp , speed , country , date on UI by takinh the data from the api
+
+        async function weather(city) {
+            // fetch the api url with city anme define the function with apikey
+            const response = await fetch(apiurl + city + `&appid=${apikey}`)
+            var data = await response.json()
+            console.log(data)
+            // define the data of api in the html content
+          
+         
+            const g = document.querySelector("#search-city").innerHTML = data.name
+            
+            // document.querySelector("#celcius-link").textContent = data.main.temp + "C°"
+            document.querySelector("#current-temperature").innerHTML = data.main.temp + "C°"
+          
+            document.querySelector("#weather-type").innerHTML = data.weather[0].description
+            document.querySelector("#humidity").innerHTML = data.main.humidity
+            document.querySelector("#wind").innerHTML = data.wind.speed
+            document.querySelector("#weather").innerHTML = data.weather[0].description
+            const weather_icon = document.querySelector("#weather_icon")
+            if (data.weather[0].description === "light rain") {
+                weather_icon.src = "https://img.icons8.com/color-glass/42/000000/partly-cloudy-day.png"
+            }
+            else if (data.weather[0].description === "broken clouds") {
+                weather_icon.src = "https://img.icons8.com/color-glass/42/000000/sun.png"
+            }
+            else if (data.weather[0].description === "clear sky") {
+                weather_icon.src = "https://img.icons8.com/color-glass/42/000000/rain.png"
+            }
+            else if (data.weather[0].description === "light rain") {
+                weather_icon.src = "https://img.icons8.com/color-glass/42/000000/partly-cloudy-day.png"
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+    //    create a function to define the day and date dynamically
+
+        const h = setTimeout(() => {
+            function time_converter(hour) {
+                if (hour >= 12) {
+                    return hour % 2
+
+                }
+                else {
+                    return hour
+                }
+            }
+            function am_pm(hour) {
+                if (hour > 12) {
+                    return "PM"
+                }
+                else {
+                    return "AM"
+                }
+
+            }
+            const days = ["Monday",
+                "Tuesday", "Wednesday",
+                "Thursday", "Friday",
+                "Saturday", "Sunday"
+            ]
+            const months = [
+                "Jan", "Feb",
+                "March",
+                "Apr",
+                "May",
+                "Jun",
+                "July",
+                "Aug",
+                "Sep",
+                "Oct",
+                "Nov",
+                "Dec"
+            ]
+            const time = new Date()
+            const date = time.getDate()
+            const month = time.getMonth()
+            const day = time.getDay()
+            const min = time.getMinutes()
+            const sec = time.getSeconds()
+            const hour = time.getHours()
+            const hourin12hr = time_converter(hour)
+            const am = am_pm(hour)
+
+
+
+            document.querySelector(
+                "#date"
+            ).innerHTML = `${days[day]}, ${date} ${months[month]}`
+
+        }, 1000)
+        const days = ["Monday",
+                "Tuesday", "Wednesday",
+                "Thursday", "Friday",
+                "Saturday", "Sunday"
+            ]
+    
+            document.querySelector("#day1").innerHTML = days[0]
+
+            document.querySelector("#day2").innerHTML = days[1]
+            document.querySelector("#day3").innerHTML =days[2]
+            document.querySelector("#day4").innerHTML =days[3]
+            document.querySelector("#day5").innerHTML =days[4]
+
+
+    </script>
+
+</body>
+
+
+
+
+
+</html>
